@@ -1,33 +1,59 @@
 import sqlite3
 
-connection = sqlite3.connect('Product.db')
+connection = sqlite3.connect('database14_5.db')
 cursor = connection.cursor()
 
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS Users(
-id INTEGER PRIMARY KEY,
-title TEXT NOT NULL,
-description TEXT,
-price INT NOT NULL);''')
+
+# cursor.execute('''
+# CREATE TABLE IF NOT EXISTS Users(
+# id INTEGER PRIMARY KEY,
+# username TEXT NOT NULL,
+# email TEXT NOT NULL,
+# age INT NOT NULL,
+# balance INT NOT NULL)''')
 
 
-# for i in range(1,5):
-#    cursor.execute('INSERT INTO Users (title, description, price) VALUES (?,?,?)',
-#                   (f'Продукт{i}', f'Описание{i}', f'{i * 100}'))
+def initiate_db():
+    connection = sqlite3.connect('database14_5.db')
+    cursor = connection.cursor()
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS Users(
+    id INTEGER PRIMARY KEY,
+    username TEXT NOT NULL,
+    email TEXT NOT NULL,
+    age INT NOT NULL,
+    balance INT NOT NULL)''')
+    connection.commit()
+    connection.close()
 
-def initiate_db(id, title, description, price):
-    check_user = cursor.execute('SELECT * FROM Users WHERE id=?', (id,))
+
+def add_user(username, email, age, balance=1000):
+    connection = sqlite3.connect('database14_5.db')
+    cursor = connection.cursor()
+    check_user = cursor.execute('SELECT * FROM Users WHERE username=?', (username,))
     if check_user.fetchone() is None:
-        cursor.execute(f'''INSERT INTO Users VALUES('{id}, {title}, {description},{price}, 0)''')
+        cursor.execute('INSERT INTO Users (username, email, age, balance) VALUES (?,?,?,?)',
+                       (f'{username}', f'{email}', f'{age}', f'{balance}'))
         connection.commit()
 
 
+def is_included(username):
+    connection = sqlite3.connect('database14_5.db')
+    cursor = connection.cursor()
+    check_user = cursor.execute('SELECT * FROM Users WHERE username=?', (username,))
+    if check_user.fetchone() is None:
+        return False
+    else:
+        return True
+
+
 def get_all_products():
+    connection = sqlite3.connect('Product.db')
+    cursor = connection.cursor()
     cursor.execute('SELECT title, description, price FROM Users WHERE id != ?', (0,))
     users = cursor.fetchall()
-    connection.commit()
     return users
 
 
 connection.commit()
-#connection.close()
+connection.close()
